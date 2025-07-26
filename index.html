@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>CADASTRO DE ONTS</title>
+  <style>
+    body {
+    
+      background-image: url('corpo.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    
+    textarea {
+      width: 100%;
+      height: 150px;
+      font-size: 16px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #resultado {
+      white-space: pre-wrap;
+      background: #f0f0f0;
+      padding: 10px;
+      margin-top: 20px;
+      min-height: 100px;
+      border: 1px solid #ccc;
+    }
+    div#tituloh2 {
+      border: 8px solid #00aeff;
+      padding: 15px 60px;
+      border-radius: 16px;
+      box-shadow: inset 0 0 15px rgb(0,157,255);
+      position: relative;
+    }
+    h2 {
+      font-size: 4em;
+      font-weight: 500;
+      color: rgb(0, 0, 0);
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: 0.5s;
+    }
+    h2:hover {
+      color: #ffffff;
+      text-shadow: 0 0 5px rgb(0, 157, 255),
+              0 0 25px rgb(0, 157, 255),
+              0 0 50px rgb(0, 157, 255),
+              0 0 100px rgb(0, 157, 255);
+    }
+
+    h3 {
+      font-size: 1.5em;
+      color: #ffffff;
+      margin-top: 20px;
+    }
+    p {
+      font-size: 1.2em;
+      color: #ffffff;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="tituloh2">
+  <h2>SISTEMA DE CADASTRO DE ONTS</h2>
+  </div>
+  <p>SISTEMA CRIADO POR:FELIPE DOS SANTOS</p>
+  <textarea id="entrada" placeholder="BIPE O MAC E O SERIAL AQUI…"></textarea>
+  <button onclick="formatar()">Processar</button>
+
+  <h3>Resultado:</h3>
+  <input type="text" id="nomeArquivo" placeholder="Digite o nome do arquivo">
+  <div id="resultado">Esse é o resultado que será salvo no bloco de notas.</div>
+  <button onclick="baixarTXT()">Salve o Bloquinho.txt</button>
+  <script>
+    function formatar() {
+      const entrada = document.getElementById("entrada").value;
+      const texto = entrada.replace(/\W/g, ''); // remove não-alfanuméricos
+
+      let resultado = '';
+      let pos = 0;
+
+      while (pos + 37 <= texto.length) {
+        const bloco1 = texto.slice(pos, pos + 12);
+        const bloco2 = texto.slice(pos + 12, pos + 24);
+        const bloco3 = texto.slice(pos + 24, pos + 37);
+        resultado += `${bloco1};${bloco2};${bloco3}\n`;
+        pos += 37;
+      }
+
+      document.getElementById("resultado").textContent = resultado.trim();
+    }
+     function copiarTexto() {
+      // Seleciona o conteúdo
+      const texto = document.getElementById("resultado").innerText;
+
+      // Copia para área de transferência
+      navigator.clipboard.writeText(texto)
+        .then(() => {
+          alert("Texto copiado!");
+        })
+        .catch(err => {
+          console.error("Erro ao copiar: ", err);
+        });
+    }
+    function baixarTXT() {
+  const texto = document.getElementById("resultado").innerText;
+  let nome = document.getElementById("nomeArquivo").value.trim();
+
+  // Define nome padrão se campo estiver vazio
+  if (!nome) {
+    nome = "resultado";
+  }
+
+  // Garante que termine com .txt
+  if (!nome.endsWith(".txt")) {
+    nome += ".txt";
+  }
+
+  const blob = new Blob([texto], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = nome;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+  </script>
+
+</body>
+</html>
