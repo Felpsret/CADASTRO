@@ -2,144 +2,224 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>CADASTRO DE ONTS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de ONTs</title>
   <style>
     body {
-    
+      margin: 0;
+      font-family: Arial, sans-serif;
       background-image: url('corpo.jpg');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      min-height: 100vh;
       padding: 20px;
-      max-width: 600px;
-      margin: auto;
     }
-    
-    textarea {
-      width: 100%;
-      height: 150px;
-      font-size: 16px;
-      padding: 10px;
-      margin-bottom: 10px;
+
+    nav {
+      background-color: #00aeff;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 10;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+      transition: 0.3s;
     }
-    #resultado {
-      white-space: pre-wrap;
-      background: #f0f0f0;
-      padding: 10px;
-      margin-top: 20px;
-      min-height: 100px;
-      border: 1px solid #ccc;
+
+    nav a:hover {
+      text-decoration: underline;
     }
-    div#tituloh2 {
-      border: 8px solid #00aeff;
-      padding: 15px 60px;
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 16px;
-      box-shadow: inset 0 0 15px rgb(0,157,255);
-      position: relative;
+      padding: 30px;
+      max-width: 700px;
+      width: 100%;
+      margin-top: 100px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
     }
+
+    #tituloh2 {
+      text-align: center;
+      border: 6px solid #00aeff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: inset 0 0 12px rgb(0, 157, 255);
+      margin-bottom: 20px;
+    }
+
     h2 {
-      font-size: 4em;
-      font-weight: 500;
-      color: rgb(0, 0, 0);
-      letter-spacing: 3px;
-      cursor: pointer;
+      font-size: 2.5em;
+      color: black;
+      margin: 0;
       transition: 0.5s;
     }
+
     h2:hover {
-      color: #ffffff;
+      color: #00aeff;
       text-shadow: 0 0 5px rgb(0, 157, 255),
-              0 0 25px rgb(0, 157, 255),
-              0 0 50px rgb(0, 157, 255),
-              0 0 100px rgb(0, 157, 255);
+                   0 0 15px rgb(0, 157, 255);
+    }
+
+    p {
+      text-align: center;
+      font-weight: bold;
+      color: #333;
+      margin-top: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      font-size: 16px;
+      padding: 12px;
+      margin-top: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #00aeff;
+      color: white;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #008cd1;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #f4f4f4;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      min-height: 100px;
+      font-family: monospace;
+    }
+
+    .botoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     h3 {
-      font-size: 1.5em;
-      color: #ffffff;
-      margin-top: 20px;
-    }
-    p {
-      font-size: 1.2em;
-      color: #ffffff;
-      margin-top: 10px;
+      margin-top: 30px;
+      color: #222;
     }
   </style>
 </head>
 <body>
-  <div id="tituloh2">
-  <h2>SISTEMA DE CADASTRO DE ONTS</h2>
-  </div>
-  <p>SISTEMA CRIADO POR:FELIPE DOS SANTOS</p>
-  <textarea id="entrada" placeholder="BIPE O MAC E O SERIAL AQUI…"></textarea>
-  <button onclick="formatar()">Processar</button>
+  <!-- NAVBAR COM URL REAL -->
+  <nav>
+    <div style="font-weight: bold; font-size: 1.5em;">ESTOQUE SUPERPODEROSO</div>
+    <div>
+      <a href="https://felpsret.github.io/ESTOQUE-VIU/" target="_blank">Encerramentos de Atendimentos</a>
+      <a href="outra-pagina.html">Outra Página</a>
+    </div>
+  </nav>
 
-  <h3>Resultado:</h3>
-  <input type="text" id="nomeArquivo" placeholder="Digite o nome do arquivo">
-  <div id="resultado">Esse é o resultado que será salvo no bloco de notas.</div>
-  <button onclick="baixarTXT()">Salve o Bloquinho.txt</button>
+  <!-- CONTEÚDO PRINCIPAL -->
+  <div class="container">
+    <div id="tituloh2">
+      <h2>SISTEMA DE CADASTRO DE ONTs</h2>
+    </div>
+    <p>Sistema criado por: <strong>Felipe dos Santos</strong></p>
+    
+    <textarea id="entrada" placeholder="Bipe o MAC e o SERIAL aqui..."></textarea>
+    <button onclick="formatar()">Processar</button>
+
+    <h3>Resultado:</h3>
+    <input type="text" id="nomeArquivo" placeholder="Digite o nome do arquivo">
+    <div id="resultado">Esse é o resultado que será salvo no bloco de notas.</div>
+
+    <div class="botoes">
+      <button onclick="baixarTXT()">Salvar .txt</button>
+      <button onclick="copiarTexto()">Copiar Texto</button>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
   <script>
     function formatar() {
       const entrada = document.getElementById("entrada").value;
-      const texto = entrada.replace(/\W/g, ''); // remove não-alfanuméricos
+      const texto = entrada.replace(/\W/g, '');
 
       let resultado = '';
       let pos = 0;
 
       while (pos + 37 <= texto.length) {
         const bloco1 = texto.slice(pos, pos + 12);
-        const bloco2 = texto.slice(pos + 13, pos + 25);
-        const bloco3 = texto.slice(pos + 24, pos + 38);
+        const bloco2 = texto.slice(pos + 12, pos + 25);
+        const bloco3 = texto.slice(pos + 25, pos + 37);
         resultado += `${bloco1};${bloco2};${bloco3}\n`;
-        pos += 38;
+        pos += 37;
       }
 
-      document.getElementById("resultado").textContent = resultado.trim();
+      document.getElementById("resultado").textContent = resultado.trim() || "Nenhum dado válido.";
     }
-     function copiarTexto() {
-      // Seleciona o conteúdo
+
+    function copiarTexto() {
       const texto = document.getElementById("resultado").innerText;
-
-      // Copia para área de transferência
       navigator.clipboard.writeText(texto)
-        .then(() => {
-          alert("Texto copiado!");
-        })
-        .catch(err => {
-          console.error("Erro ao copiar: ", err);
-        });
+        .then(() => alert("Texto copiado com sucesso!"))
+        .catch(err => console.error("Erro ao copiar: ", err));
     }
+
     function baixarTXT() {
-  const texto = document.getElementById("resultado").innerText;
-  let nome = document.getElementById("nomeArquivo").value.trim();
+      const texto = document.getElementById("resultado").innerText;
+      let nome = document.getElementById("nomeArquivo").value.trim();
+      if (!nome) nome = "resultado";
+      if (!nome.endsWith(".txt")) nome += ".txt";
 
-  // Define nome padrão se campo estiver vazio
-  if (!nome) {
-    nome = "resultado";
-  }
-
-  // Garante que termine com .txt
-  if (!nome.endsWith(".txt")) {
-    nome += ".txt";
-  }
-
-  const blob = new Blob([texto], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = nome;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
-}
+      const blob = new Blob([texto], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = nome;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
   </script>
-
 </body>
 </html>
