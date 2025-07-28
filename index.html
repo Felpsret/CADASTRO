@@ -92,10 +92,10 @@
 
       while (pos + 37 <= texto.length) {
         const bloco1 = texto.slice(pos, pos + 12);
-        const bloco2 = texto.slice(pos + 12, pos + 24);
-        const bloco3 = texto.slice(pos + 24, pos + 37);
+        const bloco2 = texto.slice(pos + 13, pos + 25);
+        const bloco3 = texto.slice(pos + 24, pos + 38);
         resultado += `${bloco1};${bloco2};${bloco3}\n`;
-        pos += 37;
+        pos += 38;
       }
 
       document.getElementById("resultado").textContent = resultado.trim();
