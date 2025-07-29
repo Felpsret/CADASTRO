@@ -145,6 +145,25 @@
       margin-top: 30px;
       color: #222;
     }
+    .tutorial {
+  background-color: #e6f7ff;
+  border-left: 5px solid #00aeff;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  color: #333;
+  font-size: 15px;
+}
+
+.tutorial ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.tutorial li {
+  margin-bottom: 8px;
+}
+
   </style>
 </head>
 <body>
@@ -153,7 +172,7 @@
     <div style="font-weight: bold; font-size: 1.5em;">ESTOQUE SUPERPODEROSO</div>
     <div>
       <a href="https://felpsret.github.io/ESTOQUE-VIU/" target="_blank">Encerramentos de Atendimentos</a>
-    
+      <a href="outra-pagina.html">Outra Página</a>
     </div>
   </nav>
 
@@ -163,7 +182,15 @@
       <h2>SISTEMA DE CADASTRO DE ONTs</h2>
     </div>
     <p>Sistema criado por: <strong>Felipe dos Santos</strong></p>
-    
+    <div class="tutorial">
+  <h3>Como usar:</h3>
+  <ul>
+    <li>1. Bipe os dados(MAC + SERIAL+ SERIAL DO FABRICANTE) da ONT no campo abaixo.</li>
+    <li>2. Clique em <strong>"Processar"</strong> para formatar as informações.</li>
+    <li>3. O resultado aparecerá abaixo pronto para ser salvo ou copiado.</li>
+  </ul>
+</div>
+
     <textarea id="entrada" placeholder="Bipe o MAC e o SERIAL aqui..."></textarea>
     <button onclick="formatar()">Processar</button>
 
@@ -223,3 +250,4 @@
   </script>
 </body>
 </html>
+
