@@ -88,35 +88,44 @@
       margin-top: 10px;
     }
 
-    textarea {
-      width: 100%;
-      height: 120px;
-      font-size: 16px;
-      padding: 12px;
-      margin-top: 15px;
+    .tutorial {
+      background-color: #e6f7ff;
+      border-left: 5px solid #00aeff;
+      padding: 15px 20px;
+      margin-bottom: 20px;
       border-radius: 8px;
-      border: 1px solid #ccc;
-      resize: vertical;
+      color: #333;
+      font-size: 15px;
     }
 
-    input[type="text"] {
+    .tutorial ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .tutorial li {
+      margin-bottom: 8px;
+    }
+
+    select, textarea, input[type="text"], button {
       width: 100%;
-      padding: 10px;
-      margin-top: 15px;
       font-size: 16px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 15px;
+      box-sizing: border-box;
+    }
+
+    select {
+      background: white;
     }
 
     button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
       background-color: #00aeff;
       color: white;
+      border: none;
+      cursor: pointer;
       transition: 0.3s;
     }
 
@@ -145,25 +154,6 @@
       margin-top: 30px;
       color: #222;
     }
-    .tutorial {
-  background-color: #e6f7ff;
-  border-left: 5px solid #00aeff;
-  padding: 15px 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  color: #333;
-  font-size: 15px;
-}
-
-.tutorial ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.tutorial li {
-  margin-bottom: 8px;
-}
-
   </style>
 </head>
 <body>
@@ -182,20 +172,26 @@
       <h2>SISTEMA DE CADASTRO DE ONTs</h2>
     </div>
     <p>Sistema criado por: <strong>Felipe dos Santos</strong></p>
-    <div class="tutorial">
-  <h3>Como usar:</h3>
-  <ul>
-    <li>1. Bipe os dados(MAC + SERIAL+ SERIAL DO FABRICANTE) da ONT no campo abaixo.</li>
-    <li>2. Clique em <strong>"Processar"</strong> para formatar as informações.</li>
-    <li>3. O resultado aparecerá abaixo pronto para ser salvo ou copiado.</li>
-  </ul>
-</div>
 
-    <textarea id="entrada" placeholder="Bipe o MAC e o SERIAL aqui..."></textarea>
+    <div class="tutorial">
+      <h3>Como usar:</h3>
+      <ul>
+        <li>1. Insira os dados em 3 linhas: MAC, Serial e Serial do Fabricante.</li>
+        <li>2. Escolha o tipo de script “Cadastro de ZTE”.</li>
+        <li>3. Clique em <strong>"Processar"</strong> para obter a saída formatada.</li>
+      </ul>
+    </div>
+
+    <!-- Entradas e seleção de script -->
+    <textarea id="entrada" placeholder="BIPE AQUI..."></textarea>
+    <select id="tipoScript">
+      <option value="CADASTRO DE ONT">Cadastro de ONT (padrão)</option>
+      <option value="CADASTRO DE ZTE" selected>CADASTRO DE ZTE</option>
+    </select>
     <button onclick="formatar()">Processar</button>
 
     <h3>Resultado:</h3>
-    <input type="text" id="nomeArquivo" placeholder="Digite o nome do arquivo">
+    <input type="text" id="nomeArquivo" placeholder="Digite o nome do arquivo" />
     <div id="resultado">Esse é o resultado que será salvo no bloco de notas.</div>
 
     <div class="botoes">
@@ -207,18 +203,30 @@
   <!-- SCRIPT -->
   <script>
     function formatar() {
-      const entrada = document.getElementById("entrada").value;
-      const texto = entrada.replace(/\W/g, '');
-
+      const tipo = document.getElementById("tipoScript").value;
+      const entrada = document.getElementById("entrada").value.trim();
       let resultado = '';
-      let pos = 0;
 
-      while (pos + 37 <= texto.length) {
-        const bloco1 = texto.slice(pos, pos + 12);
-        const bloco2 = texto.slice(pos + 12, pos + 25);
-        const bloco3 = texto.slice(pos + 25, pos + 37);
-        resultado += `${bloco1};${bloco2};${bloco3}\n`;
-        pos += 37;
+      if (tipo === "CADASTRO DE ZTE") {
+        // separa linhas não vazias
+        const linhas = entrada.split(/\r?\n/).filter(l => l.trim() !== '');
+        for (let i = 0; i + 2 < linhas.length; i += 3) {
+          const mac = linhas[i].trim();
+          const serial = linhas[i + 1].trim();
+          const fabricante = linhas[i + 2].trim();
+          resultado += `${mac};${serial};${fabricante}\n`;
+        }
+      } else {
+        // Lógica padrão (exemplo original)
+        const texto = entrada.replace(/\W/g, '');
+        let pos = 0;
+        while (pos + 37 <= texto.length) {
+          const bloco1 = texto.slice(pos, pos + 12);
+          const bloco2 = texto.slice(pos + 12, pos + 25);
+          const bloco3 = texto.slice(pos + 25, pos + 37);
+          resultado += `${bloco1};${bloco2};${bloco3}\n`;
+          pos += 37;
+        }
       }
 
       document.getElementById("resultado").textContent = resultado.trim() || "Nenhum dado válido.";
@@ -250,4 +258,3 @@
   </script>
 </body>
 </html>
-
