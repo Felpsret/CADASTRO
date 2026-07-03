@@ -25,10 +25,15 @@ function salvarCadastros(lista) {
   localStorage.setItem(CHAVE_CADASTROS, JSON.stringify(lista));
 }
 
+function gerarId() {
+  return (crypto.randomUUID && crypto.randomUUID()) || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function registrarCadastro(tipo, quantidade) {
   if (quantidade <= 0) return;
   const lista = getCadastros();
   lista.push({
+    id: gerarId(),
     usuario: getUsuario(),
     dataISO: new Date().toISOString(),
     tipo,
@@ -179,6 +184,127 @@ function atualizarPainelStats() {
   document.getElementById('statTotal').textContent = totalEquipeMes;
 }
 
+/* ============ HISTÓRICO / EDIÇÃO DOS PRÓPRIOS LANÇAMENTOS ============ */
+let idEmEdicao = null;
+
+function popularFiltroMesHistorico() {
+  const select = document.getElementById('filtroMesHistorico');
+  const usuario = getUsuario();
+  const lista = getCadastros().filter(c => c.usuario === usuario);
+  const mesAtual = new Date().toISOString().slice(0, 7);
+  const meses = new Set([mesAtual]);
+  lista.forEach(c => meses.add(chaveMes(c.dataISO)));
+
+  const mesesOrdenados = Array.from(meses).sort().reverse();
+  select.innerHTML = mesesOrdenados
+    .map(m => `<option value="${m}">${rotuloMes(m)}</option>`)
+    .join('');
+  select.value = mesAtual;
+}
+
+function renderizarHistorico() {
+  const usuario = getUsuario();
+  const mesSelecionado = document.getElementById('filtroMesHistorico').value;
+  const lista = getCadastros()
+    .filter(c => c.usuario === usuario && chaveMes(c.dataISO) === mesSelecionado)
+    .sort((a, b) => b.dataISO.localeCompare(a.dataISO));
+
+  const corpo = document.getElementById('tabelaHistoricoBody');
+
+  if (lista.length === 0) {
+    corpo.innerHTML = '<tr><td colspan="4" style="color: var(--text-faint);">Nenhum lançamento neste período.</td></tr>';
+    return;
+  }
+
+  corpo.innerHTML = lista.map(c => {
+    const dataFmt = new Date(c.dataISO).toLocaleString('pt-BR', {
+      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+    const tipoResumo = c.tipo === 'CADASTRO DE ZTE' ? 'ZTE' : 'ONT';
+
+    if (c.id === idEmEdicao) {
+      return `
+        <tr>
+          <td>${dataFmt}</td>
+          <td>${tipoResumo}</td>
+          <td><input type="number" min="0" id="inputEdicaoQtd" value="${c.quantidade}" /></td>
+          <td>
+            <div class="acoes-linha">
+              <button class="btn-icone" onclick="salvarEdicaoLancamento('${c.id}')">Salvar</button>
+              <button class="btn-icone btn-secundario" onclick="cancelarEdicaoLancamento()">Cancelar</button>
+            </div>
+          </td>
+        </tr>`;
+    }
+
+    return `
+      <tr>
+        <td>${dataFmt}</td>
+        <td>${tipoResumo}</td>
+        <td>${c.quantidade}</td>
+        <td>
+          <div class="acoes-linha">
+            <button class="btn-icone" onclick="iniciarEdicaoLancamento('${c.id}')">Editar</button>
+            <button class="btn-icone btn-secundario" onclick="excluirLancamento('${c.id}')">Excluir</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function iniciarEdicaoLancamento(id) {
+  idEmEdicao = id;
+  renderizarHistorico();
+  const input = document.getElementById('inputEdicaoQtd');
+  if (input) {
+    input.focus();
+    input.select();
+  }
+}
+
+function cancelarEdicaoLancamento() {
+  idEmEdicao = null;
+  renderizarHistorico();
+}
+
+function salvarEdicaoLancamento(id) {
+  const input = document.getElementById('inputEdicaoQtd');
+  const novaQtd = parseInt(input.value, 10);
+
+  if (isNaN(novaQtd) || novaQtd < 0) {
+    alert('Digite uma quantidade válida.');
+    return;
+  }
+
+  const lista = getCadastros();
+  const item = lista.find(c => c.id === id);
+  if (item) item.quantidade = novaQtd;
+  salvarCadastros(lista);
+
+  idEmEdicao = null;
+  renderizarHistorico();
+  atualizarPainelStats();
+}
+
+function excluirLancamento(id) {
+  if (!confirm('Excluir este lançamento? Essa ação não pode ser desfeita.')) return;
+  const lista = getCadastros().filter(c => c.id !== id);
+  salvarCadastros(lista);
+  renderizarHistorico();
+  atualizarPainelStats();
+}
+
+function abrirHistorico() {
+  idEmEdicao = null;
+  popularFiltroMesHistorico();
+  renderizarHistorico();
+  document.getElementById('historicoOverlay').classList.remove('hidden');
+}
+
+function fecharHistorico() {
+  document.getElementById('historicoOverlay').classList.add('hidden');
+}
+
 /* ============ RELATÓRIO MENSAL ============ */
 function chaveMes(iso) {
   return iso.slice(0, 7);
@@ -271,8 +397,21 @@ function exportarRelatorioCSV() {
   URL.revokeObjectURL(url);
 }
 
+function migrarCadastrosSemId() {
+  const lista = getCadastros();
+  let alterou = false;
+  lista.forEach(c => {
+    if (!c.id) {
+      c.id = gerarId();
+      alterou = true;
+    }
+  });
+  if (alterou) salvarCadastros(lista);
+}
+
 /* ============ INICIALIZAÇÃO ============ */
 document.addEventListener('DOMContentLoaded', () => {
+  migrarCadastrosSemId();
   const usuario = getUsuario();
   if (usuario) {
     aplicarUsuarioNaTela();
@@ -292,6 +431,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnSalvar').addEventListener('click', baixarTXT);
   document.getElementById('btnCopiar').addEventListener('click', copiarTexto);
   document.getElementById('btnLimpar').addEventListener('click', limparCampos);
+
+  document.getElementById('btnHistorico').addEventListener('click', abrirHistorico);
+  document.getElementById('fecharHistorico').addEventListener('click', fecharHistorico);
+  document.getElementById('filtroMesHistorico').addEventListener('change', () => {
+    idEmEdicao = null;
+    renderizarHistorico();
+  });
 
   document.getElementById('btnRelatorio').addEventListener('click', abrirRelatorio);
   document.getElementById('fecharRelatorio').addEventListener('click', fecharRelatorio);

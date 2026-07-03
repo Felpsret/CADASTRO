@@ -631,6 +631,32 @@ td {
   margin-top: 18px;
 }
 
+.btn-editar-lancamentos {
+  margin-top: 16px;
+  font-size: 0.82em;
+  padding: 9px;
+}
+
+.acoes-linha {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-icone {
+  width: auto;
+  margin: 0;
+  padding: 5px 10px;
+  font-size: 0.78em;
+  border-radius: 6px;
+}
+
+td input[type="number"] {
+  margin: 0;
+  padding: 5px 8px;
+  font-size: 0.85em;
+  width: 64px;
+}
+
 /* ============ FOOTER ============ */
 .footer {
   color: var(--text-faint);

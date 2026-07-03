@@ -22,6 +22,28 @@
     </div>
   </div>
 
+  <!-- HISTÓRICO / EDIÇÃO DE LANÇAMENTOS -->
+  <div id="historicoOverlay" class="overlay hidden">
+    <div class="relatorio-card">
+      <div class="relatorio-head">
+        <h2>Seus lançamentos</h2>
+        <button class="fechar-x" id="fecharHistorico" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="relatorio-filtros">
+        <label for="filtroMesHistorico">Período</label>
+        <select id="filtroMesHistorico"></select>
+      </div>
+      <div class="tabela-wrap">
+        <table id="tabelaHistorico">
+          <thead>
+            <tr><th>Data</th><th>Tipo</th><th>Qtd</th><th></th></tr>
+          </thead>
+          <tbody id="tabelaHistoricoBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- RELATÓRIO MENSAL -->
   <div id="relatorioOverlay" class="overlay hidden">
     <div class="relatorio-card">
@@ -105,6 +127,7 @@
           <span class="stat-valor-sm" id="statTotal">0</span>
           <span class="stat-rotulo">total geral (equipe, mês atual)</span>
         </div>
+        <button class="btn-secundario btn-editar-lancamentos" id="btnHistorico">Editar meus lançamentos</button>
       </div>
     </section>
 
