@@ -3,62 +3,129 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  <title>Cadastro de ONTs</title>
+  <title>Estoque Viu — Cadastro de ONTs</title>
   <link rel="stylesheet" href="style.css" />
   <script defer src="script.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
+
+  <!-- LOGIN SIMPLES -->
+  <div id="loginOverlay" class="overlay">
+    <div class="login-card">
+      <div class="scan-mark" aria-hidden="true"></div>
+      <h2>Identifique-se</h2>
+      <p class="login-sub">Seu nome fica salvo neste navegador para registrar os cadastros feitos por você.</p>
+      <input type="text" id="loginNome" placeholder="Digite seu nome" autocomplete="off" />
+      <button id="loginEntrar">Entrar</button>
+    </div>
+  </div>
+
+  <!-- RELATÓRIO MENSAL -->
+  <div id="relatorioOverlay" class="overlay hidden">
+    <div class="relatorio-card">
+      <div class="relatorio-head">
+        <h2>Relatório de cadastros</h2>
+        <button class="fechar-x" id="fecharRelatorio" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="relatorio-filtros">
+        <label for="filtroMes">Período</label>
+        <select id="filtroMes"></select>
+      </div>
+      <div class="relatorio-total" id="relatorioTotal">Total: 0</div>
+      <div class="tabela-wrap">
+        <table id="tabelaRelatorio">
+          <thead>
+            <tr><th>Usuário</th><th>Cadastros</th><th></th></tr>
+          </thead>
+          <tbody id="tabelaRelatorioBody"></tbody>
+        </table>
+      </div>
+      <div class="relatorio-acoes">
+        <button id="exportarRelatorio">Exportar .csv</button>
+      </div>
+    </div>
+  </div>
+
   <nav>
     <div class="titulo">
-      <span class="logo-nome">ESTOQUE</span>
-      <span class="logo-nome">VIU</span>
+      <span class="logo-mark" aria-hidden="true"></span>
+      <span class="logo-nome">ESTOQUE<em>VIU</em></span>
     </div>
-    <div>
-    <a href="https://felpsret.github.io/ESTOQUE-VIU/" target="_blank">Encerramentos de Atendimentos</a>
-    <a href="#">Outra Página</a>
-  </div>
+    <div class="nav-right">
+      <a href="https://felpsret.github.io/ESTOQUE-VIU/" target="_blank">Encerramentos</a>
+      <button class="nav-btn" id="btnRelatorio">Relatório</button>
+      <div class="user-chip" id="userChip">
+        <span class="avatar" id="userAvatar">--</span>
+        <span class="user-name" id="userNome">—</span>
+        <button class="trocar" id="btnTrocar" title="Trocar usuário">↻</button>
+      </div>
+    </div>
   </nav>
 
-  <div class="container">
+  <main class="container">
     <div id="tituloh2">
-      <h2>SISTEMA DE CADASTRO</h2>
+      <h2>Sistema de cadastro</h2>
+      <p class="assinatura">por <strong>Felipe dos Santos</strong></p>
     </div>
-    <p>Sistema criado por: <strong>Felipe dos Santos</strong></p>
 
     <div class="tutorial">
-      <h3>Como usar:</h3>
+      <h3>Como usar</h3>
       <ul>
-        <li>1. Insira os dados em 3 linhas: MAC, Serial e Serial do Fabricante.</li>
-        <li>2. Escolha o tipo de script “Cadastro de ZTE”.</li>
-        <li>3. Clique em <strong>"Processar"</strong> para obter a saída formatada.</li>
+        <li>Bipe os dados em sequência de 3 linhas: MAC, Serial e Serial do Fabricante.</li>
+        <li>Escolha o tipo de script.</li>
+        <li>Clique em <strong>Processar</strong> para gerar a saída formatada.</li>
       </ul>
     </div>
 
-    <textarea id="entrada" placeholder="BIPE AQUI..."></textarea>
-    <select id="tipoScript">
-      <option value="CADASTRO DE ONT">Cadastro de ONT </option>
-      <option value="CADASTRO DE ZTE" selected>CADASTRO DE ZTE</option>
-    </select>
-    <button onclick="formatar(event)">Processar</button>
+    <section class="grid-principal">
+      <div class="painel painel-entrada">
+        <label class="painel-label" for="entrada">Dados bipados</label>
+        <textarea id="entrada" placeholder="BIPE AQUI..."></textarea>
+        <select id="tipoScript">
+          <option value="CADASTRO DE ONT">Cadastro de ONT</option>
+          <option value="CADASTRO DE ZTE" selected>Cadastro de ZTE</option>
+        </select>
+        <button id="btnProcessar">Processar</button>
+      </div>
 
-    <h3>Resultado:</h3>
-    <input type="text" id="nomeArquivo" placeholder="Digite o nome do arquivo" />
-    <div id="resultado">Esse é o resultado que será salvo no bloco de notas.</div>
+      <div class="painel painel-stats">
+        <span class="painel-label">Seus números</span>
+        <div class="stat-linha">
+          <span class="stat-valor" id="statHoje">0</span>
+          <span class="stat-rotulo">cadastrados hoje</span>
+        </div>
+        <div class="stat-linha">
+          <span class="stat-valor" id="statMes">0</span>
+          <span class="stat-rotulo">cadastrados este mês</span>
+        </div>
+        <div class="stat-divisor"></div>
+        <div class="stat-linha stat-linha-sm">
+          <span class="stat-valor-sm" id="statTotal">0</span>
+          <span class="stat-rotulo">total geral (equipe, mês atual)</span>
+        </div>
+      </div>
+    </section>
 
-    <div class="botoes">
-      <button onclick="baixarTXT()">Salvar .txt</button>
-      <button onclick="copiarTexto()">Copiar Texto</button>
-      <button onclick="limparCampos()">Limpar</button>
-    </div>
-  </div>
+    <section class="painel painel-resultado">
+      <label class="painel-label" for="resultado">Resultado</label>
+      <input type="text" id="nomeArquivo" placeholder="Nome do arquivo para salvar" />
+      <div id="resultado">Esse é o resultado que será salvo no bloco de notas.</div>
+      <div class="botoes">
+        <button id="btnSalvar">Salvar .txt</button>
+        <button id="btnCopiar">Copiar texto</button>
+        <button id="btnLimpar" class="btn-secundario">Limpar</button>
+      </div>
+    </section>
+  </main>
 
   <footer class="footer">
     <div class="footer-content">
-      <p>&copy; 2025 <strong>Felipe dos Santos</strong>. Todos os direitos reservados.</p>
-      <p>Desenvolvido com <span class="heart">💙</span> para a equipe do setor do estoque da Viu Internet.</p>
+      <p>&copy; 2026 <strong>Felipe dos Santos</strong>. Todos os direitos reservados.</p>
+      <p>Desenvolvido para a equipe do setor de estoque da Viu Internet.</p>
     </div>
   </footer>
+
 </body>
 </html>
-
