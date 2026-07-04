@@ -29,7 +29,7 @@ function gerarId() {
   return (crypto.randomUUID && crypto.randomUUID()) || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function registrarCadastro(tipo, quantidade) {
+function registrarCadastro(tipo, quantidade, itens = []) {
   if (quantidade <= 0) return;
   const lista = getCadastros();
   lista.push({
@@ -37,10 +37,15 @@ function registrarCadastro(tipo, quantidade) {
     usuario: getUsuario(),
     dataISO: new Date().toISOString(),
     tipo,
-    quantidade
+    quantidade,
+    itens
   });
   salvarCadastros(lista);
   atualizarPainelStats();
+}
+
+function escapeHtml(texto) {
+  return String(texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 /* ============ LOGIN ============ */
@@ -109,15 +114,18 @@ function formatar() {
     }
 
     let quantidade = 0;
+    const itens = [];
     for (let i = 0; i < linhas.length; i += 3) {
       const mac = linhas[i].trim();
       const serial = linhas[i + 1].trim();
       const fabricante = linhas[i + 2].trim();
-      resultado += `${mac};${serial};${fabricante}\n`;
+      const linhaFormatada = `${mac};${serial};${fabricante}`;
+      resultado += linhaFormatada + '\n';
+      itens.push(linhaFormatada);
       quantidade++;
     }
 
-    registrarCadastro(tipo, quantidade);
+    registrarCadastro(tipo, quantidade, itens);
   }
 
   document.getElementById('resultado').textContent = resultado.trim() || 'Nenhum dado válido.';
@@ -216,7 +224,7 @@ function renderizarHistorico() {
     return;
   }
 
-  corpo.innerHTML = lista.map(c => {
+  corpo.innerHTML = lista.map((c, idx) => {
     const dataFmt = new Date(c.dataISO).toLocaleString('pt-BR', {
       day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
     });
@@ -237,6 +245,11 @@ function renderizarHistorico() {
         </tr>`;
     }
 
+    const idDetalhe = `hist-detalhe-${idx}`;
+    const itensTexto = Array.isArray(c.itens) && c.itens.length
+      ? c.itens.join('\n')
+      : 'Sem detalhes salvos para este lançamento.';
+
     return `
       <tr>
         <td>${dataFmt}</td>
@@ -244,12 +257,20 @@ function renderizarHistorico() {
         <td>${c.quantidade}</td>
         <td>
           <div class="acoes-linha">
+            <button class="btn-icone" onclick="toggleDetalheHistorico('${idDetalhe}')">Itens</button>
             <button class="btn-icone" onclick="iniciarEdicaoLancamento('${c.id}')">Editar</button>
             <button class="btn-icone btn-secundario" onclick="excluirLancamento('${c.id}')">Excluir</button>
           </div>
         </td>
+      </tr>
+      <tr class="linha-detalhe hidden" id="${idDetalhe}">
+        <td colspan="4"><div class="detalhe-itens">${escapeHtml(itensTexto)}</div></td>
       </tr>`;
   }).join('');
+}
+
+function toggleDetalheHistorico(id) {
+  document.getElementById(id).classList.toggle('hidden');
 }
 
 function iniciarEdicaoLancamento(id) {
@@ -336,12 +357,16 @@ function renderizarRelatorio() {
 
   const porUsuario = {};
   lista.forEach(c => {
-    porUsuario[c.usuario] = (porUsuario[c.usuario] || 0) + c.quantidade;
+    if (!porUsuario[c.usuario]) porUsuario[c.usuario] = { qtd: 0, itens: [] };
+    porUsuario[c.usuario].qtd += c.quantidade;
+    if (Array.isArray(c.itens) && c.itens.length) {
+      porUsuario[c.usuario].itens.push(...c.itens);
+    }
   });
 
-  const linhas = Object.entries(porUsuario).sort((a, b) => b[1] - a[1]);
-  const total = linhas.reduce((soma, [, qtd]) => soma + qtd, 0);
-  const maior = linhas.length ? linhas[0][1] : 1;
+  const linhas = Object.entries(porUsuario).sort((a, b) => b[1].qtd - a[1].qtd);
+  const total = linhas.reduce((soma, [, d]) => soma + d.qtd, 0);
+  const maior = linhas.length ? linhas[0][1].qtd : 1;
 
   document.getElementById('relatorioTotal').textContent = `Total: ${total}`;
 
@@ -351,13 +376,26 @@ function renderizarRelatorio() {
     return;
   }
 
-  corpo.innerHTML = linhas.map(([usuario, qtd]) => `
-    <tr>
+  corpo.innerHTML = linhas.map(([usuario, dados], idx) => {
+    const idDetalhe = `rel-detalhe-${idx}`;
+    const itensTexto = dados.itens.length
+      ? dados.itens.join('\n')
+      : 'Sem MAC/Serial detalhados para este período.';
+
+    return `
+    <tr class="linha-clicavel" onclick="toggleDetalheRelatorio('${idDetalhe}')" title="Clique para ver MAC e Serial">
       <td>${usuario || '(sem nome)'}</td>
-      <td>${qtd}</td>
-      <td style="width: 90px;"><div class="rank-bar" style="width: ${(qtd / maior) * 100}%;"></div></td>
+      <td>${dados.qtd}</td>
+      <td style="width: 90px;"><div class="rank-bar" style="width: ${(dados.qtd / maior) * 100}%;"></div></td>
     </tr>
-  `).join('');
+    <tr class="linha-detalhe hidden" id="${idDetalhe}">
+      <td colspan="3"><div class="detalhe-itens">${escapeHtml(itensTexto)}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleDetalheRelatorio(id) {
+  document.getElementById(id).classList.toggle('hidden');
 }
 
 function abrirRelatorio() {
@@ -374,17 +412,16 @@ function exportarRelatorioCSV() {
   const mesSelecionado = document.getElementById('filtroMes').value;
   const lista = getCadastros().filter(c => chaveMes(c.dataISO) === mesSelecionado);
 
-  const porUsuario = {};
+  let csv = 'Usuario;MAC;Serial;Fabricante\n';
   lista.forEach(c => {
-    porUsuario[c.usuario] = (porUsuario[c.usuario] || 0) + c.quantidade;
+    if (Array.isArray(c.itens) && c.itens.length) {
+      c.itens.forEach(item => {
+        csv += `${c.usuario};${item}\n`;
+      });
+    } else {
+      csv += `${c.usuario};SEM DETALHE (qtd: ${c.quantidade});;\n`;
+    }
   });
-
-  let csv = 'Usuario;Cadastros\n';
-  Object.entries(porUsuario)
-    .sort((a, b) => b[1] - a[1])
-    .forEach(([usuario, qtd]) => {
-      csv += `${usuario};${qtd}\n`;
-    });
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);

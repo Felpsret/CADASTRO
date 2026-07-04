@@ -74,11 +74,11 @@ nav {
 }
 
 .logo-mark {
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow: 0 0 14px rgba(0, 224, 255, 0.5);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 14px rgba(0, 224, 255, 0.4);
   flex-shrink: 0;
 }
 
@@ -655,6 +655,37 @@ td input[type="number"] {
   padding: 5px 8px;
   font-size: 0.85em;
   width: 64px;
+}
+
+.linha-clicavel {
+  cursor: pointer;
+}
+
+.linha-clicavel:hover td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.acoes-linha {
+  flex-wrap: wrap;
+}
+
+.linha-detalhe td {
+  border-top: none;
+  padding-top: 0;
+}
+
+.detalhe-itens {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  white-space: pre-wrap;
+  word-break: break-all;
+  background: #060c18;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--success);
+  max-height: 180px;
+  overflow-y: auto;
 }
 
 /* ============ FOOTER ============ */
